@@ -1,4 +1,5 @@
 import React, {createContext, useReducer} from 'react';
+import { updateChatReducer, updateChatState } from './reducers';
 
 const reduceReducers = (...reducers) => (prevState, value, ...args) => {
     reducers.reduce(
@@ -6,9 +7,13 @@ const reduceReducers = (...reducers) => (prevState, value, ...args) => {
     );
 };
 
-const combinedReducers = reduceReducers();
+const combinedReducers = reduceReducers(
+    ...updateChatReducer
+);
 
-const initialState = {};
+const initialState = {
+    ...updateChatState
+};
 
 const store = createContext(initialState);
 const {Provider} = store;
