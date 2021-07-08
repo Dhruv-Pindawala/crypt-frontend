@@ -8,7 +8,7 @@ const reduceReducers = (...reducers) => (prevState, value, ...args) => {
 };
 
 const combinedReducers = reduceReducers(
-    ...updateChatReducer
+    updateChatReducer
 );
 
 const initialState = {
