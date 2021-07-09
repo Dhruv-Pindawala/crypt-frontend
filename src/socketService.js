@@ -1,19 +1,23 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useContext} from 'react';
 import openSocket from 'socket.io-client';
+import { activeChatAction } from './stateManagement/actions';
+import { store } from './stateManagement/store';
 
 const SOCKET_URL = 'http://localhost:9000/server';
 let socket;
 
 const SocketService = () => {
+    const {state: {userDetail}, dispatch} = useContext(store);
 
     const setupSocket = () => {
         socket = openSocket(SOCKET_URL);
         socket.on('command', (data) => {
-            console.log(data);
+            if (userDetail !== data.receiver) return;
+            dispatch({type:activeChatAction, payload:data});
         });
     };
 
-    useEffect(setupSocket, []);
+    useEffect(setupSocket, [userDetail]);
 
     return <></>;
 };
@@ -26,4 +30,8 @@ const sendSocket = (data) => {
         id: data.id,
         content: data.content,
     });
+};
+
+export const sendTestSocket = (data) => {
+    socket.emit('command',data);
 };
