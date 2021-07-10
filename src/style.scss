@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Poller+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+$secondaryFont: 'Poller One', cursive;
+$primaryFont: 'Poppins', sans-serif;
+
+$primaryColor: '#2D2E57';
+$secondaryColor: '#EC6982';
+
+html,body {
+    margin: 0;
+    padding: 0;
+    font-family: $primaryFont;
+}
