@@ -86,6 +86,33 @@ a {
         margin-top: 40px;
         margin-bottom: 20px;
     }
+
+    .socialButton {
+        height: 50px;
+        background-color: rgba(black, 0.2);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 15px;
+        cursor: pointer;
+
+        img {
+            margin-right: 10px;
+        }
+    }
+
+    .switchOption {
+        margin-top: 50px;
+        color: rgba(white, 0.3);
+        text-align: center;
+
+        b {
+            font-weight: 500;
+            color: $secondaryColor;
+        }
+    }
 }
 
 .logo {
@@ -105,5 +132,6 @@ button {
     border: none;
     outline: none;
     font-weight: 500;
+    font-size: 15px;
     cursor: pointer;
 }
