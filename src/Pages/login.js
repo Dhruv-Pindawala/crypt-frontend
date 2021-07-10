@@ -14,7 +14,7 @@ const Login = (props) => {
                 <form>
                     <input className='input-field' placeholder='Username' />
                     <div className='input-container'>
-                        <input className='input-field' placeholder='Password' type='password' />
+                        <input className='input-field' placeholder='Password' type='password' autoComplete='new-password' />
                         <img src={eyeopen} />
                         <img src={eyeclose} />
                     </div>
