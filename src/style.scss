@@ -4,11 +4,58 @@
 $secondaryFont: 'Poller One', cursive;
 $primaryFont: 'Poppins', sans-serif;
 
-$primaryColor: '#2D2E57';
-$secondaryColor: '#EC6982';
+$primaryColor: #2D2E57;
+$secondaryColor: #EC6982;
 
 html,body {
     margin: 0;
     padding: 0;
     font-family: $primaryFont;
+}
+
+.flex {
+    display: flex;
+
+    &.justify-end {
+        justify-content: end;
+    }
+}
+
+.grid {
+    display: grid;
+
+    &.grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    &.grid-gap-2 {
+        grid-column-gap: 2em;
+    }
+}
+
+.loginContainer {
+    width: 100%;
+    padding: 50px 20px;
+    background-color: $primaryColor;
+    min-height: 100vh;
+    box-sizing: border-box;
+
+    .inner {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .title {
+        font-size: 26px;
+        text-align: center;
+        color: rgba(white, 0.65);
+    }
+}
+
+.logo {
+    font-size: 40px;
+    color: $secondaryColor;
+    font-family: $secondaryFont;
+    text-align: center;
+    margin: 50px 0;
 }
