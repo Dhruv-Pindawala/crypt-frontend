@@ -1,6 +1,8 @@
 import React from 'react';
 import eyeopen from '../assets/eyeopen.png';
 import eyeclose from '../assets/eyeclose.png';
+import google from '../assets/google.png';
+import twitter from '../assets/twitter.png';
 import {Link} from 'react-router-dom';
 
 const Login = (props) => {
@@ -21,6 +23,17 @@ const Login = (props) => {
                     </div>
                     <button type='submit'>Login</button>
                 </form>
+                <div className='grid grid-2 grid-gap-2'>
+                    <div className='socialButton'>
+                        <img src={twitter} /> <span>Twitter</span>
+                    </div>
+                    <div className='socialButton'>
+                        <img src = {google} /> <span>Google</span>
+                    </div>
+                </div>
+                <div className='switchOption'>
+                    Don't have an account yet? <b>Sign up</b>
+                </div>
             </div>
         </div>
     )
