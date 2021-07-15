@@ -10,7 +10,7 @@ const AuthController = (props) => {
         checkAuthState();
     }, []);
 
-    return <div className='authContainer'>{checking ? <Loader /> : props.children}</div>;
+    return (<div className='authContainer'>{checking ? <div className='centerAll'> <Loader /> </div> : props.children}</div>);
 };
 
 export default AuthController;
