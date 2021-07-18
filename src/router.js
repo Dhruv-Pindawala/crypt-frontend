@@ -12,7 +12,7 @@ const Router = () => {
             <Route path='/login' component={Login} exact />
             <Route path='/register' component={Register} exact />
             <Route path='/' component={(props) => (
-                <AuthController>
+                <AuthController {...props}>
                     <Route path='/' component={Home} exact />
                 </AuthController>
             )} />

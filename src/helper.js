@@ -1,5 +1,5 @@
 import Axios from "axios";
-import { logout, tokenName } from "./Pages/authController";
+import { logout, tokenName } from "./Pages/authController.js";
 import { ME_URL, REFERESH_URL } from "./urls";
 
 export const LastUserChat = "lastUserChat";
