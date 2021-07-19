@@ -76,6 +76,11 @@ export const AuthForm = (props) => {
             )}
             <form onSubmit={props.onSubmit}>
                 <input value={props.data.username} name='username' onChange={props.onChange} className='input-field' placeholder='Username' required />
+                {!props.login && (
+                    <div className='input-container'>
+                        <input className='input-field' value={props.data.email} name='email' onChange={props.onChange} placeholder='Email Address' required />
+                    </div>
+                )}
                 <div className='input-container'>
                     <input className='input-field' value={props.data.password} name='password' onChange={props.onChange} placeholder='Password' type={!props.showPassword ? 'password' : 'text'} autoComplete='new-password' required />
                     <img src={!props.showPassword ? eyeopen : eyeclose} onClick={() => props.setShowPassword(!props.showPassword)} />
