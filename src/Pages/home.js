@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState , useContext, useEffect} from 'react';
 import userDetail from '../assets/userdetail.png';
 import favorite from '../assets/star.png';
 import smiley from '../assets/smiley.png';
@@ -7,13 +7,36 @@ import settings from '../assets/settings.png';
 import search from '../assets/search.png';
 import logout from '../assets/logout.png';
 import {ChatBubble,UserAvatar,UserMain,ProfileModal} from './homeComponents';
+import { store } from '../stateManagement/store';
+import Loader from '../components/loader';
 
 const Home = (props) => {
     const [showProfile, setShowProfile] = useState(false);
+    const [profileClosable, setProfileClosable] = useState(true);
+    const [userdetail, setUserDetail] = useState(null);
+    const {state: {userDetail}} = useContext(store);
+
+    useEffect(() => {
+        if (userDetail !== userdetail) {
+            setUserDetail(userDetail);
+            if (!userDetail.first_name) {
+                setShowProfile(true);
+                setProfileClosable(false);
+            }
+        }
+    }, [userDetail]);
+
+    if (!userdetail) {
+        return (
+            <div className='centerAll'>
+                <Loader />
+            </div>
+        );
+    }
 
     return (
         <>
-        <ProfileModal close={() => setShowProfile(false)} visible={showProfile} />
+        <ProfileModal {...props} close={() => setShowProfile(false)} visible={showProfile} closable={profileClosable} userDetail={userdetail} setClosable={() => setProfileClosable(true)} />
         <div className='home-container'>
             <div className='side'>
                 <div className='flex align-center justify-between top'>
@@ -81,3 +104,4 @@ const Home = (props) => {
         </>
     );
 };
+export default Home;

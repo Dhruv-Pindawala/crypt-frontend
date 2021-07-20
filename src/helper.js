@@ -64,11 +64,7 @@ export const getToken = async (props) => {
   let token = localStorage.getItem(tokenName);
   if (!token) logout(props);
   token = JSON.parse(token);
-  const userProfile = await axiosHandler({
-    method: "get",
-    url: ME_URL,
-    token: token.access,
-  }).catch((e) => null);
+  const userProfile = await axiosHandler({ method: "get", url: ME_URL , token: token.access,}).catch((e) => null);
   if (userProfile) {
     return token.access;
   } else {
