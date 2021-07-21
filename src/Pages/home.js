@@ -5,10 +5,11 @@ import smiley from '../assets/smiley.png';
 import send from '../assets/send.png';
 import settings from '../assets/settings.png';
 import search from '../assets/search.png';
-import logout from '../assets/logout.png';
+import logoutPng from '../assets/logout.png';
 import {ChatBubble,UserAvatar,UserMain,ProfileModal} from './homeComponents';
 import { store } from '../stateManagement/store';
 import Loader from '../components/loader';
+import { logout } from './authController';
 
 const Home = (props) => {
     const [showProfile, setShowProfile] = useState(false);
@@ -65,8 +66,8 @@ const Home = (props) => {
                     <UserMain />
                     <UserMain />
                 </div>
-                <div className='logout'>
-                    <img src={logout} />
+                <div className='logout' onClick={() => logout(props)}>
+                    <img src={logoutPng} />
                     <div>logout</div>
                 </div>
             </div>

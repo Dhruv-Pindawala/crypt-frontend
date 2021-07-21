@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import eyeopen from '../assets/eyeopen.png';
 import eyeclose from '../assets/eyeclose.png';
 import google from '../assets/google.png';
@@ -8,7 +8,7 @@ import {Link} from 'react-router-dom';
 import { axiosHandler, errorHandler } from '../helper';
 import { LOGIN_URL } from '../urls';
 import Loader from '../components/loader';
-import { tokenName } from './authController';
+import { checkAuthState, tokenName } from './authController';
 
 export const loginRequest = async (data, setError, props) => {
     const result = await axiosHandler({
@@ -27,6 +27,13 @@ const Login = (props) => {
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState(null);
+    const [checking, setChecking] = useState(localStorage.getItem(tokenName));
+
+    useEffect(() => {
+        if (checking) {
+            checkAuthState(() => null, () => props.history.push("/"), props);
+        }
+    }, []);
 
     const submit = async (e) => {
         e.preventDefault();
@@ -45,6 +52,7 @@ const Login = (props) => {
 
     return (
         <div className='loginContainer'>
+            {checking ? (<div className='centerAll'><Loader/></div>) : (
             <div className='inner'>
                 <div className='logo'>CRYPT</div>
                 <div className='title'>Sign in</div>
@@ -60,7 +68,7 @@ const Login = (props) => {
                 <div className='switchOption'>
                     Don't have an account yet? <Link to='/register'>Sign up</Link>
                 </div>
-            </div>
+            </div>)}
         </div>
     );
 };

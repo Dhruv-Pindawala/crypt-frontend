@@ -1,54 +1,61 @@
 import React, {useEffect, useState, useContext} from 'react';
 import Loader from '../components/loader';
-import { axiosHandler } from '../helper';
+import { axiosHandler, getToken } from '../helper';
 import { userDetailAction } from '../stateManagement/actions';
 import { store } from '../stateManagement/store';
-import { ME_URL, REFERESH_URL } from '../urls';
+import { LOGOUT_URL, ME_URL, REFERESH_URL } from '../urls';
 
 export const tokenName = 'tokenName';
 export const logout = (props) => {
+    if (localStorage.getItem(tokenName)) {
+        axiosHandler({
+            method: "get",
+            url: LOGOUT_URL,
+            token: getToken(),
+        });
+    }
     localStorage.removeItem(tokenName);
     props.history.push("/login");
+};
+
+export const checkAuthState = async (setChecking, dispatch, props) => {
+    let token = localStorage.getItem(tokenName);
+    if (!token) {
+        logout(props);
+        return;
+    }
+    token = JSON.parse(token);
+    const userProfile = await axiosHandler({
+        method: 'get',
+        url: ME_URL,
+        token: token.access,
+    }).catch((e) => null);
+    if (userProfile) {
+        setChecking(false);
+        dispatch({type: userDetailAction, payload: userProfile.data});
+    } else {
+        const getNewAccess = await axiosHandler({
+            method: 'get',
+            url: REFERESH_URL,
+            data: {
+                refresh: token.refresh
+            },
+        }).catch((e) => null);
+        if (getNewAccess) {
+            localStorage.setItem(tokenName, JSON.stringify(getNewAccess.data));
+            checkAuthState(setChecking, dispatch, props);
+        } else {
+            logout(props);
+        }
+    }
 };
 
 const AuthController = (props) => {
     const [checking, setChecking] = useState(true);
     const { dispatch } = useContext(store);
 
-    const checkAuthState = async () => {
-        let token = localStorage.getItem(tokenName);
-        if (!token) {
-            logout(props);
-            return;
-        }
-        token = JSON.parse(token);
-        const userProfile = await axiosHandler({
-            method: 'get',
-            url: ME_URL,
-            token: token.access,
-        }).catch((e) => null);
-        if (userProfile) {
-            setChecking(false);
-            dispatch({type: userDetailAction, payload: userProfile.data});
-        } else {
-            const getNewAccess = await axiosHandler({
-                method: 'get',
-                url: REFERESH_URL,
-                data: {
-                    refresh: token.refresh
-                }
-            }).catch((e) => null);
-            if (getNewAccess) {
-                localStorage.setItem(tokenName, JSON.stringify(getNewAccess.data));
-                checkAuthState();
-            } else {
-                logout(props);
-            }
-        }
-    };
-
     useEffect(() => {
-        checkAuthState();
+        checkAuthState(setChecking, dispatch, props);
     }, []);
 
     return (<div className='authContainer'>{checking ? <div className='centerAll'> <Loader /> </div> : props.children}</div>);
