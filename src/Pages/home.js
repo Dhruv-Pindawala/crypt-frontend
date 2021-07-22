@@ -44,7 +44,7 @@ const Home = (props) => {
         <div className='home-container'>
             <div className='side'>
                 <div className='flex align-center justify-between top'>
-                    <UserAvatar noStatus isV2 name={`${userdetail.first_name || ""} ${userdetail.last_name || ""}`} profilePicture={userdetail.profile_picture} />
+                    <UserAvatar noStatus isV2 name={`${userdetail.first_name || ""} ${userdetail.last_name || ""}`} profilePicture={userdetail.profile_picture ? userdetail.profile_picture.file_upload : ""} />
                     <img src={settings} onClick={() => setShowProfile(true)} />
                 </div>
 

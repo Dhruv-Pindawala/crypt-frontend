@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import search from '../assets/search.png';
 import Loader from '../components/loader';
-import { axiosHandler, getToken } from '../helper';
+import { axiosHandler, getToken, LastUserChat } from '../helper';
 import { activeChatUserAction } from '../stateManagement/actions';
 import { store } from '../stateManagement/store';
 import { PROFILE_URL } from '../urls';
@@ -32,9 +32,21 @@ function UserList() {
             setUsers(_users.data.results);
             setFetching(false);
         }
+        checkLastChat = (_users.data.results);
     };
 
+    const checkLastChat = (users) => {
+        let lastUserChat = localStorage.getItem(LastUserChat);
+        if (lastUserChat) {
+            lastUserChat = JSON.parse(lastUserChat);
+            if (users.filter(item => item.id === lastUserChat.id).length) {
+                dispatch({ type: activeChatUserAction, payload: lastUserChat});
+            }
+        }
+    }
+
     const setActiveUser = (user_data) => {
+        localStorage.setItem(LastUserChat, JSON.stringify(user_data));
         dispatch({ type: activeChatUserAction, payload: user_data});
     };
 
@@ -46,7 +58,7 @@ function UserList() {
             </div>
 
             <div className='userList'>
-                {fetching ? (<center><Loader /></center>) : (users.length < 1 ? <div className='noUser'>You don't have any user to chat with.</div> : users.map((item, i) => <UserMain key={i} name={`${item.first_name || ""} ${item.last_name || ""}`} profilePicture={item.profile_picture} caption={item.caption} count={item.message_count} clickable onClick={() => setActiveUser(item)} />))}
+                {fetching ? (<center><Loader /></center>) : (users.length < 1 ? <div className='noUser'>You don't have any user to chat with.</div> : users.map((item, i) => <UserMain key={i} name={`${item.first_name || ""} ${item.last_name || ""}`} profilePicture={item.profile_picture ? item.profile_picture.file_upload : ""} caption={item.caption} count={item.message_count} clickable onClick={() => setActiveUser(item)} />))}
             </div>
         </div>
     );

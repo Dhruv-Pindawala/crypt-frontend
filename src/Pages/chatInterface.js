@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import userDetail from '../assets/userdetail.png';
 import favorite from '../assets/star.png';
 import smiley from '../assets/smiley.png';
 import send from '../assets/send.png';
-import { ChatBubble } from './homeComponents';
+import settings from "../assets/settings.png";
+import { ChatBubble, ProfileModal } from './homeComponents';
 import Loader from '../components/loader';
 import { axiosHandler, errorHandler, getToken } from '../helper';
 import {MESSAGE_URL} from "../urls";
@@ -17,6 +17,7 @@ function ChatInterface(props) {
     const [fetching, setFetching] = useState(false);
     const [nextPage, setNextPage] = useState(1);
     const [canGoNext, setCanGoNext] = useState(false);
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     const {state:{activeChat}, dispatch} = useContext(store);
 
@@ -32,12 +33,26 @@ function ChatInterface(props) {
 
         if (result) {
             setMessages(result.data.results, reverse());
+            result.data.results.map(item => {
+                if (item.is_read) return null;
+                if (item.receiver.user.id === props.loggedUser.user.id) {
+                    updateMessage(item.id)
+                }
+                return null;
+            })
+
             if (result.data.next) {
                 setCanGoNext(true)
                 setNextPage(nextPage+1)
             }
             setFetching(false);
+            scrollToBottom();
         }
+    }
+
+    const updateMessage = async (message_id) => {
+        const token = await getToken();
+        axiosHandler({method:"patch", url:MESSAGE_URL + `/${message_id}`, token, data:{is_read: true}})
     }
 
     useEffect(() => {
@@ -72,6 +87,7 @@ function ChatInterface(props) {
         if (result) {
             messages[lastIndex] = result.data;
             setMessages(messages);
+            scrollToBottom();
         }
     };
 
@@ -82,16 +98,24 @@ function ChatInterface(props) {
         return ""
     }
 
+    const scrollToBottom = () => {
+        setTimeout(() => {
+            let chatArea = document.getElementById('chatArea');
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }, 100)
+    }
+
     return (
         <>
+            <ProfileModal {...props} close={() => setShowProfileModal(false)} userDetail={props.activeUser} visible={showProfileModal} closable={true} setClosable={() => null} view />
             <div className='flex align-center justify-between heading'>
                 <UserAvatar name={`${props.activeUser.first_name || ""} ${props.activeUser.last_name || ""}`} profilePicture={props.activeUser.profile_picture} caption={props.activeUser.caption} />
                 <div className = 'flex align-center rightItems'>
                     <img src={favorite} />
-                    <img src={userDetail}/>
+                    <img src={settings} onClick={() => setShowProfileModal(true)}/>
                 </div>
             </div>
-            <div className='chatArea'>
+            <div className='chatArea' id='chatArea'>
                 {
                     fetching ? <center><Loader /></center> : messages.length < 1 ? <div className='noUser'>No messages yet</div> : messages.map((item, key) => <ChatBubble bubbleType={handleBubbleType(item)} key={key} message={item.message} time={item.created_at ? moment(item.created_at).format("DD-MM-YYYY hh:mm a") : ""} />)
                 }
