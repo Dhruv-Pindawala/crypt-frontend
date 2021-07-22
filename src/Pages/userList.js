@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import search from '../assets/search.png';
 import Loader from '../components/loader';
 import { axiosHandler, getToken } from '../helper';
+import { activeChatUserAction } from '../stateManagement/actions';
+import { store } from '../stateManagement/store';
 import { PROFILE_URL } from '../urls';
 import { UserMain } from './homeComponents';
 
@@ -10,6 +12,7 @@ function UserList() {
     const [users, setUsers] = useState([]);
     const [fetching, setFetching] = useState(true);
     const [nextPage, setNextPage] = useState(1);
+    const {dispatch} = useContext(store);
 
     useEffect(() => {
         getUserList
@@ -31,6 +34,10 @@ function UserList() {
         }
     };
 
+    const setActiveUser = (user_data) => {
+        dispatch({ type: activeChatUserAction, payload: user_data});
+    };
+
     return (
         <div>
             <div className='searchCon'>
@@ -39,7 +46,7 @@ function UserList() {
             </div>
 
             <div className='userList'>
-                {fetching ? (<center><Loader /></center>) : (users.length < 1 ? <div className='noUser'>You don't have any user to chat with.</div> : users.map((item, i) => <UserMain key={i} name={`${item.first_name || ""} ${item.last_name || ""}`} profilePicture={item.profile_picture} caption={item.caption} count={item.message_count} />))}
+                {fetching ? (<center><Loader /></center>) : (users.length < 1 ? <div className='noUser'>You don't have any user to chat with.</div> : users.map((item, i) => <UserMain key={i} name={`${item.first_name || ""} ${item.last_name || ""}`} profilePicture={item.profile_picture} caption={item.caption} count={item.message_count} clickable onClick={() => setActiveUser(item)} />))}
             </div>
         </div>
     );

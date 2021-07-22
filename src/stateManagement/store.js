@@ -1,5 +1,5 @@
 import React, {createContext, useReducer} from 'react';
-import { updateChatReducer, updateChatState, userDetailReducer, userDetailState, activeChatReducer, activeChatState } from './reducers';
+import { updateChatReducer, updateChatState, userDetailReducer, userDetailState, activeChatReducer, activeChatState, activeChatUserReducer, activeChatUserState } from './reducers';
 
 const reduceReducers = (...reducers) => (prevState, value, ...args) =>
     reducers.reduce(
@@ -7,13 +7,11 @@ const reduceReducers = (...reducers) => (prevState, value, ...args) =>
     );
 
 const combinedReducers = reduceReducers(
-    updateChatReducer, userDetailReducer, activeChatReducer
+    updateChatReducer, userDetailReducer, activeChatReducer, activeChatUserReducer,
 );
 
 const initialState = {
-    ...updateChatState,
-    ...userDetailState,
-    ...activeChatState
+    ...updateChatState, ...userDetailState, ...activeChatState, ...activeChatUserState,
 };
 
 const store = createContext(initialState);

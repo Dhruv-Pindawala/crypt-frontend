@@ -1,21 +1,19 @@
 import React, { useState , useContext, useEffect} from 'react';
-import userDetail from '../assets/userdetail.png';
-import favorite from '../assets/star.png';
-import smiley from '../assets/smiley.png';
-import send from '../assets/send.png';
 import settings from '../assets/settings.png';
 import logoutPng from '../assets/logout.png';
-import {ChatBubble,UserAvatar,ProfileModal} from './homeComponents';
+import {UserAvatar,ProfileModal} from './homeComponents';
 import { store } from '../stateManagement/store';
 import Loader from '../components/loader';
 import { logout } from './authController';
 import UserList from './userList';
+import ChatInterface from './chatInterface';
 
 const Home = (props) => {
     const [showProfile, setShowProfile] = useState(false);
     const [profileClosable, setProfileClosable] = useState(true);
     const [userdetail, setUserDetail] = useState(null);
-    const {state: {userDetail}} = useContext(store);
+    const [activeUser, setActiveUser] = useState(null);
+    const {state: {userDetail, activeChatUser}} = useContext(store);
 
     useEffect(() => {
         if (userDetail !== userdetail) {
@@ -25,7 +23,12 @@ const Home = (props) => {
                 setProfileClosable(false);
             }
         }
-    }, [userDetail]);
+
+        if (activeUser !== activeChatUser) {
+            setActiveUser(activeChatUser);
+        }
+
+    }, [userDetail, activeChatUser]);
 
     if (!userdetail) {
         return (
@@ -53,34 +56,7 @@ const Home = (props) => {
                 </div>
             </div>
             <div className='main'>
-                <div className='flex align-center justify-between heading'>
-                    <UserAvatar />
-                    <div className = 'flex align-center rightItems'>
-                        <img src={favorite} />
-                        <img src={userDetail}/>
-                    </div>
-                </div>
-                <div className='chatArea'>
-                    <ChatBubble bubbleType='' />
-                    <ChatBubble bubbleType='sender' />
-                    <ChatBubble bubbleType='sender' />
-                    <ChatBubble bubbleType='' />
-                    <ChatBubble bubbleType='' />
-                    <ChatBubble bubbleType='sender' />
-                    <ChatBubble bubbleType='sender' />
-                    <ChatBubble bubbleType='' />
-                    <ChatBubble bubbleType='' />
-                    <ChatBubble bubbleType='sender' />
-                    <ChatBubble bubbleType='sender' />
-                    <ChatBubble bubbleType='' />
-                </div>
-                <div className='messageZone'>
-                    <div className='flex align-center justify-between topPart'>
-                        <img src={smiley} />
-                        <img src={send} />
-                    </div>
-                    <textarea placeholder='Type a message here...' />
-                </div>
+                {activeUser ? <ChatInterface activeUser={activeUser} loggedUser={userdetail} /> : <div className='noUser'>Click on a user to start chatting</div>}
             </div>
         </div>
         </>
