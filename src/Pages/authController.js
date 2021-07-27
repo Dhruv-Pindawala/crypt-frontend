@@ -36,7 +36,7 @@ export const checkAuthState = async (setChecking, dispatch, props) => {
         dispatch({type: userDetailAction, payload: userProfile.data});
     } else {
         const getNewAccess = await axiosHandler({
-            method: 'get',
+            method: 'post',
             url: REFERESH_URL,
             data: {
                 refresh: token.refresh

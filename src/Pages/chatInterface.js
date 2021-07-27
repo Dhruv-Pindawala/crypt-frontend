@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useState } from 'react';
 import favorite from '../assets/star.png';
 import favoriteActive from '../assets/favActive.png';
-import smiley from '../assets/smiley.png';
 import send from '../assets/send.png';
 import settings from "../assets/settings.png";
-import { ChatBubble, ProfileModal } from './homeComponents';
+import { ChatBubble, UserAvatar } from './homeComponents';
 import Loader from '../components/loader';
 import { axiosHandler, errorHandler, getToken } from '../helper';
-import {CHECK_FAVORITE_URL, MESSAGE_URL, UPDATE_FAVORITE_URL} from "../urls";
+import {CHECK_FAVORITE_URL, MESSAGE_URL, UPDATE_FAVORITE_URL, READ_MESSAGE_URL} from "../urls";
 import moment from 'moment;'
-import { activeChatAction } from '../stateManagement/actions';
+import { activeChatAction, triggerRefreshUserListAction } from '../stateManagement/actions';
 import { store } from '../stateManagement/store';
+import menu from "../assets/menu.svg"
 
 let goneNext = false;
 
@@ -20,8 +20,8 @@ function ChatInterface(props) {
     const [fetching, setFetching] = useState(false);
     const [nextPage, setNextPage] = useState(1);
     const [canGoNext, setCanGoNext] = useState(false);
-    const [showProfileModal, setShowProfileModal] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
+    const [shouldHandleScroll, setShouldHandleScroll] = useState(false)
 
     const {state:{activeChat}, dispatch} = useContext(store);
 
@@ -33,13 +33,13 @@ function ChatInterface(props) {
         }
     }
 
-    const getMessages = async (append=false) => {
+    const getMessages = async (append=false, page) => {
         const token = await getToken();
         setCanGoNext(false);
 
         const result = await axiosHandler({
             method: "get",
-            url: MESSAGE_URL + `?user_id=${props.activeUser.user.id}&page=${nextPage}`,
+            url: MESSAGE_URL + `?user_id=${props.activeUser.user.id}&page=${page ? page : nextPage}`,
             token
         }).catch(e => console.log(errorHandler(e)))
 
@@ -51,13 +51,19 @@ function ChatInterface(props) {
             else {
                 setMessages(result.data.results.reverse());
             }
+
+            const message_not_read = []
             result.data.results.map(item => {
                 if (item.is_read) return null;
                 if (item.receiver.user.id === props.loggedUser.user.id) {
-                    updateMessage(item.id);
+                    message_not_read.push(item.id);
                 }
                 return null;
             })
+
+            if (message_not_read.length > 0) {
+                updateMessage(message_not_read)
+            }
 
             if (result.data.next) {
                 setCanGoNext(true);
@@ -66,18 +72,27 @@ function ChatInterface(props) {
             setFetching(false);
             if (!append) {
                 scrollToBottom();
+                setTimeout(() => setShouldHandleScroll(true), 1000)
             }
         }
     }
 
-    const updateMessage = async (message_id) => {
+    const updateMessage = async (message_ids) => {
         const token = await getToken();
-        axiosHandler({method:"patch", url:MESSAGE_URL + `/${message_id}`, token, data:{is_read: true}})
+        axiosHandler({method:"post", url:READ_MESSAGE_URL, token, data:{message_ids}})
+        dispatch({type: triggerRefreshUserListAction, payload: true})
+    }
+
+    const reset = () => {
+        setMessages([]);
+        setFetching(true);
+        setCanGoNext(false);
     }
 
     useEffect(() => {
-        getMessages(),
-        checkIsFav()
+        reset();
+        getMessages(false, 1);
+        checkIsFav();
     }, [props.activeUser]);
 
     const updateFav = async () => {
@@ -125,17 +140,18 @@ function ChatInterface(props) {
         if (item.sender_id) return "sender"
 
         if (item.sender.user.id === props.loggedUser.user.id) return "sender"
-        return ""
+        else return ""
     }
 
     const scrollToBottom = () => {
         setTimeout(() => {
             let chatArea = document.getElementById('chatArea');
             chatArea.scrollTop = chatArea.scrollHeight;
-        }, 100)
+        }, 150)
     }
 
     const handleScroll = e => {
+        if (!shouldHandleScroll) return;
         if (e.target.scrollTop <= 100) {
             if (canGoNext && !goneNext) {
                 goneNext = true;
@@ -146,29 +162,33 @@ function ChatInterface(props) {
 
     return (
         <>
-            <ProfileModal {...props} close={() => setShowProfileModal(false)} userDetail={props.activeUser} visible={showProfileModal} closable={true} setClosable={() => null} view />
-            <div className='flex align-center justify-between heading'>
-                <UserAvatar name={`${props.activeUser.first_name || ""} ${props.activeUser.last_name || ""}`} profilePicture={props.activeUser.profile_picture && props.activeUser.profile_picture.file_upload} caption={props.activeUser.caption} />
-                <div className = 'flex align-center rightItems'>
+            <div className="flex align-center justify-between heading">
+                <div className="flex align-center">
+                    <div className="mobile">
+                        <img src={menu} alt="" onClick={props.toggleSideBar}/>&nbsp;&nbsp;
+                    </div>
+                    <UserAvatar name={`${props.activeUser.first_name || ""} ${props.activeUser.last_name || ""}`} profilePicture={props.activeUser.profile_picture && props.activeUser.profile_picture.file_upload} caption={props.activeUser.caption} />
+                </div>
+                <div className="flex align-center rightItems">
                     <img src={isFavorite ? favoriteActive : favorite} onClick={updateFav} />
-                    <img src={settings} onClick={() => setShowProfileModal(true)}/>
+                    <img src={settings} onClick={() => props.setShowProfileModal(true)} />
                 </div>
             </div>
-            <div className='chatArea' id='chatArea' onScroll={handleScroll}>
-                {
-                    fetching ? <center><Loader /></center> : messages.length < 1 ? <div className='noUser'>No messages yet</div> : messages.map((item, key) => <ChatBubble bubbleType={handleBubbleType(item)} key={key} message={item.message} time={item.created_at ? moment(item.created_at).format("DD-MM-YYYY hh:mm a") : ""} />)
-                }
-
+            <div className="chatArea" id="chatArea" onScroll={handleScroll}>
+                {fetching ? ( <center> <Loader /> </center> ) : messages.length < 1 ? ( <div className="noUser">No message yet</div> ) : ( messages.map((item, key) => ( <ChatBubble bubbleType={handleBubbleType(item)} message={item.message} time={item.created_at ? moment(item.created_at).format("DD-MM-YYYY hh:mm a") : ""} key={key} />)))}
             </div>
-            <form className='messageZone' onSubmit={submitMessage}>
-                <div className='flex align-center justify-between topPart'>
-                    <img src={smiley} />
-                    <button type='submit'><img src={send} /></button>
+            <form onSubmit={submitMessage} className="messageZone">
+                <div className="flex align-center justify-between topPart">
+                    <div/>
+                    <button type="submit">
+                        <img src={send} />
+                    </button>
                 </div>
-                <input placeholder='Type a message here...' value={message} onChange={e => setMessage(e.target.value)} />
+                <input placeholder="Type your message here..." value={message} onChange={(e) => setMessage(e.target.value)} />
             </form>
         </>
-    )
+    );
 }
+    
 
 export default ChatInterface;
