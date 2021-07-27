@@ -1,8 +1,12 @@
-import { updateChatAction, userDetailAction, activeChatAction, activeChatUserAction } from "./actions";
+import { updateChatAction, userDetailAction, activeChatAction, activeChatUserAction, triggerRefreshUserListAction } from "./actions";
 
 export const updateChatState = {
     chatState: false,
 };
+
+export const triggerRefreshUserListState = {
+    chatState: false,
+}
 
 export const activeChatState = {
     activeChat: null,
@@ -22,6 +26,14 @@ export const activeChatReducer = (state, action) => {
             ...state,
             activeChat: action.payload,
         };
+    } else {
+        return state;
+    }
+};
+
+export const triggerRefreshUserListReducer = (state, action) => {
+    if (action.type === triggerRefreshUserListAction) {
+        return {...state, triggerRefreshUserList: action.payload,}
     } else {
         return state;
     }

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import searchImg from '../assets/search.png';
 import Loader from '../components/loader';
 import { axiosHandler, getToken, LastUserChat } from '../helper';
-import { activeChatUserAction } from '../stateManagement/actions';
+import { activeChatUserAction, triggerRefreshUserListAction } from '../stateManagement/actions';
 import { store } from '../stateManagement/store';
 import { PROFILE_URL } from '../urls';
 import { UserMain } from './homeComponents';
@@ -15,11 +15,18 @@ function UserList() {
     const [nextPage, setNextPage] = useState(1);
     const [search, setSearch] = useState("");
     const [canGoNext, setCanGoNext] = useState(false);
-    const {dispatch} = useContext(store);
+    const {state:{triggerRefreshUserList}, dispatch} = useContext(store);
 
     useEffect(() => {
         getUserList;
-    }, []);
+    }, [search]);
+
+    useEffect(() => {
+        if (triggerRefreshUserList) {
+            getUserList();
+            dispatch({type: triggerRefreshUserListAction, payload: false});
+        }
+    }, [triggerRefreshUserList])
 
     const getUserList = async (append=false) => {
         let extra = "";
@@ -55,7 +62,7 @@ function UserList() {
         if (lastUserChat) {
             lastUserChat = JSON.parse(lastUserChat);
             if (users.filter(item => item.id === lastUserChat.id).length) {
-                dispatch({ type: activeChatUserAction, payload: lastUserChat});
+                setActiveUser(lastUserChat)
             }
         }
     }
@@ -66,7 +73,7 @@ function UserList() {
     };
 
     const handleScroll = (e) => {
-        if (e.target.scrollTop >= (e.target.scrollHeight - (e.target.offsetHeight + 150))) {
+        if (e.target.scrollTop >= (e.target.scrollHeight - (e.target.offsetHeight + 200))) {
             if (canGoNext && !goneNext) {
                 getUserList(true);
             }
@@ -76,7 +83,6 @@ function UserList() {
     return (
         <div>
             <SearchDebouce setSearch={setSearch} />
-
             <div className='userList' onScroll={handleScroll}>
                 {fetching ? (<center><Loader /></center>) : (users.length < 1 ? <div className='noUser'>You don't have any user to chat with.</div> : users.map((item, i) => <UserMain key={i} name={`${item.first_name || ""} ${item.last_name || ""}`} profilePicture={item.profile_picture ? item.profile_picture.file_upload : ""} caption={item.caption} count={item.message_count} clickable onClick={() => setActiveUser(item)} />))}
             </div>

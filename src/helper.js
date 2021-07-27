@@ -52,9 +52,7 @@ const loopObj = (obj) => {
   let agg = "";
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
-      agg += `<div>${key}: ${
-        typeof obj[key] === "object" ? loopObj(obj[key]) : obj[key]
-      }</div>`;
+      agg += `<div>${key}: ${ typeof obj[key] === "object" ? loopObj(obj[key]) : obj[key] }</div>`;
     }
   }
   return agg;

@@ -57,14 +57,14 @@ const Login = (props) => {
                 <div className='logo'>CRYPT</div>
                 <div className='title'>Sign in</div>
                     <AuthForm login data={loginData} onSubmit={submit} onChange={onChange} showPassword={showPassword} setShowPassword={setShowPassword} error={error} setError={setError} loading={loading} />
-                <div className='grid grid-2 grid-gap-2'>
+                {/* <div className='grid grid-2 grid-gap-2'>
                     <div className='socialButton'>
                         <img src={twitter} /> <span>Twitter</span>
                     </div>
                     <div className='socialButton'>
                         <img src = {google} /> <span>Google</span>
                     </div>
-                </div>
+                </div> */}
                 <div className='switchOption'>
                     Don't have an account yet? <Link to='/register'>Sign up</Link>
                 </div>
@@ -93,11 +93,11 @@ export const AuthForm = (props) => {
                     <input className='input-field' value={props.data.password} name='password' onChange={props.onChange} placeholder='Password' type={!props.showPassword ? 'password' : 'text'} autoComplete='new-password' required />
                     <img src={!props.showPassword ? eyeopen : eyeclose} onClick={() => props.setShowPassword(!props.showPassword)} />
                 </div>
-                {props.login && (
+                {/* {props.login && (
                     <div className='flex justify-end'>
                         <Link to='/'>Forgot Password</Link>
                     </div>
-                )}
+                )} */}
                 <button type='submit' disabled={props.loading}>{props.loading ? (<center> <Loader /> </center> ) : (props.login ? "Login" : "Register")}</button>
             </form>
         </>

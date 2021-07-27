@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import close from "../assets/close.png";
 import edit from "../assets/edit.png";
 import Loader from "../components/loader";
@@ -19,8 +19,7 @@ export const UserMain = (props) => {
             <UserAvatar isV2 name={props.name} profilePicture={props.profilePicture} caption={props.caption} />
             {
                 _count > 0 && <div className="counter">{props.count}</div>
-            }
-      
+            }      
         </div>
     );
 };
